@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use App\Notifications\CustomResetPassword; 
 
 class User extends Authenticatable
 {
@@ -18,9 +20,8 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'nombre', 'email', 'password','email_verified_at', 'telefono', 'estado', 'fecha_nacimiento',
+        'vales', 'alergia', 'patologias', 'plan', 'genero'
     ];
 
     /**
@@ -45,4 +46,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function citas()
+    {
+        return $this->hasMany(Cita::class);
+    }
+    public function historialMedico()
+    {
+        return $this->hasOne(HistorialMedico::class, 'user_id');
+    }
+
+    public function sendPasswordResetNotification($token)
+{
+    $this->notify(new CustomResetPassword($token, $this->email));
+}
 }
