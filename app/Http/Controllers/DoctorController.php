@@ -16,7 +16,7 @@ class DoctorController extends Controller
         $doctores = Doctor::paginate(10);
         // Retorna todos los doctores de la table
         // $doctores = Doctor::all();
-        return view('doctores.index', compact('doctores'));
+        return view('doctores.doctores', compact('doctores'));
     }
 
     /**

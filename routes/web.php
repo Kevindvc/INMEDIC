@@ -23,3 +23,23 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('
 Route::get('/doctores', [DoctorController::class, 'index'])->name('doctores.index');
 //Ruta para ver un doctor en especifico
 Route::get('/doctores/{doctor}', [DoctorController::class, 'show'])->name('doctores.show');
+//Ruta para landing page
+Route::get('/landing', function () {
+    return view('landing');
+})->name('landing');
+//Ruta pregutas frecuentes
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq');
+// Ruta login de prueba
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
+//Ruta contactanos
+Route::get('/contacto', function () {
+    return view('contacto');
+})->name('contacto');
+//Ruta nosotros
+Route::get('/nosotros', function () {
+    return view('nosotros');
+})->name('nosotros');
