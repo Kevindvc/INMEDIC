@@ -1,71 +1,67 @@
+@extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1 class="mb-4">Agendar Nueva Cita</h1>
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form action="{{ route('citas.store') }}" method="POST">
-        @csrf
-
-        <div class="row">
-            <!-- Selección de Doctor -->
-            <div class="col-md-6 mb-3">
-                <label for="doctor_id" class="form-label">Doctor</label>
-                <select class="form-select" id="doctor_id" name="doctor_id" required>
-                    <option value="">Seleccione un doctor</option>
-                    @foreach($doctores as $doctor)
-                        <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
-                            {{ $doctor->nombre }} - {{ $doctor->especialidad }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Especialidad -->
-            <div class="col-md-6 mb-3">
-                <label for="especialidad" class="form-label">Especialidad</label>
-                <input type="text" class="form-control" id="especialidad" name="especialidad" 
-                       value="{{ old('especialidad') }}" required>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- Fecha y Hora -->
-            <div class="col-md-6 mb-3">
-                <label for="fecha_hora" class="form-label">Fecha y Hora</label>
-                <input type="datetime-local" class="form-control" id="fecha_hora" 
-                       name="fecha_hora" value="{{ old('fecha_hora') }}" required>
-            </div>
-
-            <!-- Método de Consulta -->
-            <div class="col-md-6 mb-3">
-                <label for="metodo" class="form-label">Método de Consulta</label>
-                <select class="form-select" id="metodo" name="metodo" required>
-                    <option value="videollamada" {{ old('metodo') == 'videollamada' ? 'selected' : '' }}>Videollamada</option>
-                    <option value="llamada" {{ old('metodo') == 'llamada' ? 'selected' : '' }}>Llamada</option>
-                    <option value="SMS" {{ old('metodo') == 'SMS' ? 'selected' : '' }}>SMS</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Notas Adicionales -->
-        <div class="mb-3">
-            <label for="notas_adicionales" class="form-label">Notas Adicionales</label>
-            <textarea class="form-control" id="notas_adicionales" name="notas_adicionales" 
-                      rows="3">{{ old('notas_adicionales') }}</textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Agendar Cita</button>
-        <a href="{{ route('citas.index') }}" class="btn btn-secondary">Cancelar</a>
-    </form>
+<div class="appointment-box">
+<h2>📅 Agenda tu cita</h2>
+    
+    @include('citas.partials.form', [
+        'method' => 'POST',
+        'action' => route('citas.store')
+    ])
 </div>
 @endsection
+
+
+<style>
+    .appointment-box {
+        background-color: #f4f4f4;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        max-width: 600px;
+        margin: auto;
+    }
+    .appointment-container {
+        padding: 3rem 1rem;
+    }
+    h2 {
+        font-family:gugi;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #007a87;
+    }
+    .btn-primary {
+        background-color: #007a87;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 5px;
+    }
+    .btn-primary:hover {
+        background-color: #005f66;
+        transform: translateY(-1px);
+    }
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-3px);
+    }
+    .card-title {
+        color: #007a87;
+        font-weight: 600;
+    }
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+    .alert {
+        border-radius: 8px;
+    }
+</style>
+
+<!-- Incluye los íconos de Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">

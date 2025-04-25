@@ -1,35 +1,44 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CitaController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing');
 });
 
+Route::get('/landing', function () {
+    return view('landing');
+})->name('landing');
+
+// Rutas protegidas (requieren autenticación)
 Route::middleware(['auth'])->group(function () {
+    
+    // Rutas de recursos para CRUD básico (excepto destroy)
     Route::resource('citas', CitaController::class)->except(['destroy']);
-    Route::patch('/citas/{cita}/cancelar', [CitaController::class, 'cancelar'])->name('citas.cancelar');
+    
+    // Ruta personalizada para cancelar citas (PATCH)
+    Route::patch('/citas/{cita}/cancelar', [CitaController::class, 'cancelar'])
+         ->name('citas.cancelar');
+         
+    // Si necesitas una ruta DELETE para eliminar citas (opcional)
+    // Route::delete('/citas/{cita}', [CitaController::class, 'destroy'])
+    //      ->name('citas.destroy');
 });
 
-Route::get('/test-db', function() {
-    try {
-        DB::connection()->getPdo();
-        
-        // Obtener algunos datos de muestra
-        $users = App\Models\User::limit(5)->get();
-        $doctors = App\Models\Doctor::limit(5)->get();
-        
-        return response()->json([
-            'message' => 'Conexión exitosa a la base de datos',
-            'users_sample' => $users,
-            'doctors_sample' => $doctors
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'No se pudo conectar a la base de datos',
-            'message' => $e->getMessage()
-        ], 500);
-    }
+// Si necesitas alguna ruta pública (ej. para API)
+// Route::get('/citas/calendario', [CitaController::class, 'calendario'])
+//      ->name('citas.calendario');
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+require __DIR__.'/auth.php';

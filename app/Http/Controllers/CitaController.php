@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Cita;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CitaController extends Controller
 {
+    use AuthorizesRequests;
     public function index()
     {
         $citas = auth()->user()->citas()->with('doctor')->latest()->get();
@@ -29,14 +32,41 @@ class CitaController extends Controller
             'metodo' => 'required|in:videollamada,llamada,SMS',
             'notas_adicionales' => 'nullable|string|max:255',
         ]);
-
+    
         $cita = new Cita($request->all());
         $cita->user_id = auth()->id();
+        
+        if ($request->metodo === 'videollamada') {
+            $cita->enlace = $this->generarEnlaceJitsi($cita);
+        }
+        
         $cita->save();
-
+    
         return redirect()->route('citas.index')->with('success', 'Cita agendada correctamente');
     }
-
+    
+    private function generarEnlaceJitsi(Cita $cita)
+    {
+        // Genera un ID único para la sala
+        $roomId = 'cita-' . $cita->user_id . '-' . $cita->doctor_id . '-' . Str::random(8);
+        
+        // Configuración básica (puedes personalizar estos parámetros)
+        $config = [
+            'domain' => 'meet.jit.si', // Servidor gratuito de Jitsi
+            'room' => $roomId,
+            'params' => [
+                'userInfo' => [
+                    'displayName' => auth()->user()->nombre,
+                ],
+                'config' => [
+                    'startWithAudioMuted' => false,
+                    'startWithVideoMuted' => false
+                ]
+            ]
+        ];
+    
+        return "https://{$config['domain']}/{$config['room']}";
+    }
     public function show(Cita $cita)
     {
         $this->authorize('view', $cita);
@@ -64,6 +94,13 @@ class CitaController extends Controller
 
         $cita->update($request->all());
         return redirect()->route('citas.index')->with('success', 'Cita actualizada correctamente');
+    }
+
+    public function destroy(Cita $cita)
+    {
+        $this->authorize('delete', $cita);
+        $cita->delete();
+        return redirect()->route('citas.index')->with('success', 'Cita eliminada correctamente');
     }
 
     public function cancelar(Cita $cita)
